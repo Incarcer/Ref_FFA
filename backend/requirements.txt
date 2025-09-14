@@ -1,0 +1,23 @@
+# Web Framework
+fastapi
+uvicorn[standard]
+
+# ORM & Database
+sqlalchemy
+alembic
+psycopg2-binary
+asyncpg
+
+# Configuration & Data Validation
+pydantic-settings
+
+# API Communication
+requests
+requests-oauthlib
+httpx
+
+# Data Processing
+pandas
+
+# Security (for passwords, etc.)
+passlib[bcrypt]

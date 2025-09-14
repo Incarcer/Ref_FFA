@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FFA Refactor - Project Viewer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-900 text-gray-300 font-sans">
+    <div class="flex h-screen">
+        <aside class="w-1/4 h-screen bg-gray-950 p-4 overflow-y-auto border-r border-gray-800 flex flex-col">
+            <h1 class="text-xl font-bold text-white mb-2">Project Structure</h1>
+            <div id="project-overview-btn" class="flex items-center gap-2 px-2 py-1.5 text-sm font-medium text-white bg-gray-700 rounded-md hover:bg-gray-600 transition-colors cursor-pointer mb-4">
+                <i data-lucide="book-open" class="w-4 h-4"></i>
+                <span>Project Overview</span>
+            </div>
+            <nav id="file-tree" class="text-sm flex-grow overflow-y-auto"></nav>
+            <a href="app_preview.html" target="_blank" class="mt-6 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shrink-0">
+                <i data-lucide="layout-template"></i>
+                <span>View App Mockup</span>
+            </a>
+        </aside>
+        <main class="w-3/4 h-screen flex flex-col">
+            <header class="bg-gray-950 p-4 border-b border-gray-800 flex items-center">
+                <h2 id="file-name" class="text-lg font-semibold text-white flex items-center"></h2>
+            </header>
+            <div id="project-summary" class="p-8 prose prose-invert max-w-none prose-h3:text-white prose-strong:text-white overflow-y-auto">
+                <h2 class="text-2xl font-bold text-white mb-4">Project Showcase: Fantasy Football Analyst (FFA)</h2>
+                <p>This page showcases the final, fully-refactored 'Fantasy Football Analyst' (FFA) web application. The project has evolved from a conceptual stage to a robust, feature-rich platform for Yahoo fantasy football league analysis.</p>
+                
+                <h3>Key Features Implemented:</h3>
+                <ul class="space-y-2">
+                    <li><strong>Secure Yahoo API Integration:</strong> Users can securely authenticate with their Yahoo accounts to import league, team, and roster data.</li>
+                    <li><strong>Waiver Wire Assistant:</strong> Provides real-time analysis of available players on the waiver wire, helping users make informed pickup decisions.</li>
+                    <li><strong>Advanced Trade Analyzer:</strong> A powerful tool that allows users to build and evaluate hypothetical trades, offering a data-driven verdict on whether a trade is beneficial.</li>
+                    <li><strong>Dynamic Frontend UI:</strong> A polished and responsive user interface built with React, providing a seamless user experience for league overviews, waiver wire, and trade analysis.</li>
+                </ul>
+
+                <h3>Architectural Improvements:</h3>
+                <ul class="space-y-2">
+                    <li><strong>Containerized Architecture:</strong> The entire application is containerized using Docker and Docker Compose, ensuring a consistent and reproducible environment.</li>
+                    <li><strong>Microservices-oriented Design:</strong> A clear separation between the Python/FastAPI backend and the React frontend promotes scalability and maintainability.</li>
+                    <li><strong>Robust Backend API:</strong> The backend exposes a well-defined RESTful API, built with modern practices using FastAPI, for all data interactions.</li>
+                    <li><strong>Scalable Database:</strong> Utilizes PostgreSQL with Alembic for migrations, providing a solid foundation for complex fantasy data.</li>
+                </ul>
+
+                <p class="mt-6">This interactive viewer allows you to explore the complete file structure of the project. Click on any file in the tree to view its source code and understand the implementation details.</p>
+            </div>
+            <div id="file-content-wrapper" class="flex-grow bg-gray-900 overflow-auto hidden">
+                <pre class="h-full"><code id="file-content" class="language-plaintext"></code></pre>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
