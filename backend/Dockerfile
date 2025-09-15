@@ -4,24 +4,26 @@ FROM python:3.11-slim
 # Set the working directory in the container
 WORKDIR /app
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends gcc && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies
-COPY requirements.txt .
+# 1. Install dependencies AS ROOT.
+# Copy only the requirements file first to leverage Docker layer caching.
+COPY ./requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application's code
-COPY . .
+# 2. Now, create the non-root user.
+RUN adduser --system --group appuser
+
+# 3. Copy the rest of the application code and set ownership.
+# This ensures the application files are owned by the user who will run them.
+COPY --chown=appuser:appuser . .
+
+# 4. Switch to the non-root user for runtime.
+# From this point on, commands run as 'appuser'.
+USER appuser
 
 # Expose the port the app runs on
 EXPOSE 8000
 
-# Define the command to run the application
-# Use uvicorn for production
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+# Command to run the application
+# Use --host 0.0.0.0 to make it accessible from outside the container
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

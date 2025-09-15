@@ -1,58 +1,50 @@
 import axios from 'axios';
 
+
 const apiClient = axios.create({
-  baseURL: '/api/v1', // Proxied by Vite to the backend
-  headers: {
-    'Content-Type': 'application/json',
-  },
+    baseURL: '/api/v1',
+    withCredentials: true, // Crucial for sending HttpOnly cookies
 });
 
-export const fetchCurrentUser = async () => {
-  try {
-    const response = await apiClient.get('/users/me');
-    return response.data;
-  } catch (error) {
 
-    throw error;
-  }
+export const registerUser = (userData) => {
+
+    const formData = new FormData();
+    formData.append('email', userData.email);
+    formData.append('password', userData.password);
+    formData.append('full_name', userData.full_name);
+    return apiClient.post('/auth/register', formData);
 };
 
-export const fetchLeagues = async () => {
-  try {
-    const response = await apiClient.get('/leagues');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching leagues:', error);
-    throw error;
-  }
+export const loginUser = (credentials) => {
+    const params = new URLSearchParams();
+    params.append('username', credentials.email);
+    params.append('password', credentials.password);
+    return apiClient.post('/auth/login', params, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
 };
 
-export const getWaiverWire = async (leagueKey) => {
-  try {
-    const response = await apiClient.get(`/leagues/${leagueKey}/waiver-wire`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching waiver wire for league ${leagueKey}:`, error);
-    throw error;
-  }
+export const logoutUser = () => {
+    return apiClient.post('/auth/logout');
 };
 
-export const fetchAllPlayers = async () => {
-    try {
-        const response = await apiClient.get('/players');
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching players:', error);
-        throw error;
-    }
+export const getCurrentUser = () => {
+    return apiClient.get('/auth/users/me');
 };
 
-export const analyzeTrade = async (tradeData) => {
-    try {
-        const response = await apiClient.post('/trades/analyze', tradeData);
-        return response.data;
-    } catch (error) {
-        console.error('Error analyzing trade:', error);
-        throw error;
-    }
+
+
+export const getYahooAuthUrl = () => {
+    return apiClient.get('/yahoo/auth');
 };
+
+export const checkYahooStatus = () => {
+    return apiClient.get('/yahoo/status');
+};
+
+export const fetchYahooLeagues = () => {
+    return apiClient.get('/yahoo/leagues');
+};
+
+export default apiClient;

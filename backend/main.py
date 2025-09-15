@@ -1,27 +1,28 @@
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from .app.api.v1.endpoints import fantasy
-from .app.api.routers import waiver_router
-from .app.core.config import settings
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(
-    title="Yahoo Fantasy Football Analyst API",
-    version="0.1.0",
-    description="The backend API for the FFA project.",
+from app.api.v1.endpoints import auth, yahoo
+from app.core.config import settings
+from app.core.db import Base, engine
+
+# Create DB tables if they don't exist
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="Fantasy Sports API")
+
+# CORS Middleware Configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[settings.FRONTEND_URL],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Include API routers
-app.include_router(fantasy.router, prefix=settings.API_V1_STR, tags=["fantasy"])
-app.include_router(waiver_router.router, prefix=settings.API_V1_STR, tags=["waiver"])
-
-# Mount the static files (built React app)
-# This allows FastAPI to serve the frontend in a production-like setup.
-# In development, the Vite dev server (localhost:5173) is used.
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+# Include API Routers
+app.include_router(auth.router, prefix=settings.API_V1_STR + "/auth", tags=["Authentication"])
+app.include_router(yahoo.router, prefix=settings.API_V1_STR, tags=["Yahoo Integration"])
 
 @app.get("/api/health")
 def health_check():
-    """
-    Simple health check endpoint.
-    """
     return {"status": "ok"}

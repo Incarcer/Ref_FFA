@@ -1,57 +1,117 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom';
+import { getCurrentUser, logoutUser } from './services/api';
 
-import HomePage from './pages/HomePage';
-import LeaguePage from './pages/LeaguePage';
-import WaiverWirePage from './pages/WaiverWirePage';
-import TradeAnalyzerPage from './pages/TradeAnalyzerPage';
-import { fetchCurrentUser } from './services/api';
+
+import Login from './components/Login';
+import Register from './components/Register';
+import Dashboard from './components/Dashboard';
+import SettingsPage from './components/SettingsPage';
+import LeaguesPage from './components/LeaguesPage';
+
 
 const AuthContext = createContext(null);
+
 export const useAuth = () => useContext(AuthContext);
 
-function App() {
-  const [user, setUser] = useState(null);
-  const [loadingAuth, setLoadingAuth] = useState(true);
+const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      try {
-        const userData = await fetchCurrentUser();
-        setUser(userData);
-      } catch (error) {
+    useEffect(() => {
+        const verifyUser = async () => {
+            try {
+                const response = await getCurrentUser();
+                setUser(response.data);
+            } catch (error) {
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+        verifyUser();
+    }, []);
+
+    const login = (userData) => setUser(userData);
+
+    const logout = async () => {
+        await logoutUser();
         setUser(null);
-      } finally {
-        setLoadingAuth(false);
-      }
     };
 
-    checkAuthStatus();
-  }, []);
+    const authValue = { user, loading, login, logout };
 
-  return (
-    <AuthContext.Provider value={{ user, setUser, loadingAuth }}>
-      <div className="bg-gray-900 text-white min-h-screen">
-        <header className="p-4 bg-gray-950 border-b border-gray-800 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Yahoo Fantasy Football Analyst</h1>
-          <nav className="flex gap-6 items-center">
-            <Link to="/" className="text-gray-300 hover:text-white transition-colors">Home</Link>
-            <Link to="/leagues" className="text-gray-300 hover:text-white transition-colors">Leagues</Link>
-            <Link to="/waiver-wire" className="text-gray-300 hover:text-white transition-colors">Waiver Wire</Link>
-            <Link to="/trade-analyzer" className="text-gray-300 hover:text-white transition-colors">Trade Analyzer</Link>
-          </nav>
-        </header>
-        <main className="p-4 md:p-8">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/leagues" element={<LeaguePage />} />
-            <Route path="/waiver-wire" element={<WaiverWirePage />} />
-            <Route path="/trade-analyzer" element={<TradeAnalyzerPage />} />
-          </Routes>
-        </main>
-      </div>
-    </AuthContext.Provider>
-  );
+    return (
+        <AuthContext.Provider value={authValue}>
+            {!loading && children}
+        </AuthContext.Provider>
+    );
+};
+
+
+const PrivateRoute = ({ children }) => {
+    const { user } = useAuth();
+    if (!user) {
+        return <Navigate to="/login" replace />;
+    }
+    return children;
+};
+
+
+function AppLayout() {
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/login');
+    };
+
+    return (
+        <>
+            <nav style={{ padding: '1rem', background: '#f0f0f0', borderBottom: '1px solid #ccc' }}>
+                <Link to="/">Home</Link> | {' '}
+                {user ? (
+                    <>
+                        <Link to="/leagues">My Leagues</Link> | {' '}
+                        <Link to="/settings">Settings</Link> | {' '}
+                        <button onClick={handleLogout} style={{all: 'unset', cursor: 'pointer', color: 'blue', textDecoration: 'underline'}}>Logout ({user.email})</button>
+                    </>
+                ) : (
+                    <>
+                        <Link to="/login">Login</Link> | {' '}
+                        <Link to="/register">Register</Link>
+                    </>
+                )}
+            </nav>
+            <hr />
+            <main style={{ padding: '1rem' }}>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    
+                    {/* Protected Routes */}
+                    <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                    <Route path="/settings" element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
+                    <Route path="/leagues" element={<PrivateRoute><LeaguesPage /></PrivateRoute>} />
+
+                    {/* Fallback to home */}
+                    <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
+            </main>
+        </>
+    );
+}
+
+
+function App() {
+    return (
+        <Router>
+            <AuthProvider>
+                <AppLayout />
+            </AuthProvider>
+        </Router>
+    );
 }
 
 export default App;
