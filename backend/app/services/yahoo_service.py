@@ -66,8 +66,6 @@ async def refresh_token(refresh_token: str) -> Dict[str, Any]:
 async def get_refreshed_token(db: Session, user_id: int) -> str:
     """
     Retrieves a user's token, refreshing it if necessary, and returns a valid access token.
-    NOTE: This function performs synchronous DB calls within an async function.
-    For production at scale, consider a full async DB driver (e.g., asyncpg).
     """
     token_data = crud.crud_yahoo_token.get_by_user_id(db, user_id=user_id)
     if not token_data:

@@ -9,14 +9,11 @@ const apiClient = axios.create({
 
 export const registerUser = (userData) => {
 
-    const formData = new FormData();
-    formData.append('email', userData.email);
-    formData.append('password', userData.password);
-    formData.append('full_name', userData.full_name);
-    return apiClient.post('/auth/register', formData);
+    return apiClient.post('/auth/register', userData);
 };
 
 export const loginUser = (credentials) => {
+
     const params = new URLSearchParams();
     params.append('username', credentials.email);
     params.append('password', credentials.password);

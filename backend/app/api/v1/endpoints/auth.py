@@ -46,8 +46,8 @@ def login_for_access_token(
 
 @router.post("/register", response_model=schemas.user.UserPublic, status_code=status.HTTP_201_CREATED)
 def register_user(
+    user_in: schemas.user.UserCreate,
     db: Session = Depends(get_db),
-    user_in: schemas.user.UserCreate = Depends(),
 ):
     """Create new user."""
     user = crud.crud_user.get_user_by_email(db, email=user_in.email)

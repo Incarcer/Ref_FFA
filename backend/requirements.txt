@@ -1,20 +1,9 @@
-# Core FastAPI Framework
 fastapi
 uvicorn[standard]
-
-# Database & ORM
 sqlalchemy
 psycopg2-binary
-
-# Settings Management
 pydantic-settings
-
-# Security & Authentication
 python-jose[cryptography]
 passlib[bcrypt]
-
-# HTTP Client for Yahoo API
 httpx
-
-# For parsing form data (e.g., in login)
-python-multipart
+python-dotenv
